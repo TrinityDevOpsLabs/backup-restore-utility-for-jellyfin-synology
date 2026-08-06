@@ -68,7 +68,49 @@ sudo ./jellyfin_backup_restore.py --restore /path/to/jellyfin-data_2026-01-01_02
 
 Normal output is appended to `LOG_FILE`, errors are appended to `ERROR_FILE`, and both are also shown in the terminal.
 
-For unattended backups, invoke the same `--backup` command from DSM Task Scheduler as a user-defined script running as `root`. Test a manual backup and restore procedure before relying on a schedule.
+## Schedule backups in DSM
+
+The task must run as `root` because the script controls the Jellyfin package and
+reads its application-data directory.
+
+1. Confirm that `.env` is configured and run one successful backup manually.
+2. In DSM, open **Control Panel > Task Scheduler**.
+3. Select **Create > Scheduled Task > User-defined script**.
+4. On the **General** tab:
+
+   - Enter a name such as `Jellyfin backup`.
+   - Select `root` as the user.
+   - Leave **Enabled** selected.
+
+5. On the **Schedule** tab, choose the desired frequency and a time when the
+   server is normally idle. Jellyfin is stopped while its application data is
+   archived and verified, then restarted.
+6. On the **Task Settings** tab, enter the script's absolute path followed by
+   `--backup`. For example:
+
+   ```sh
+   /volume1/scripts/jellyfin-backup/jellyfin_backup_restore.py --backup
+   ```
+
+   Replace the example path with the actual location on your NAS. Do not use a
+   relative path. The script loads `.env` from its own directory, so a `cd`
+   command is unnecessary.
+
+7. Optionally enable email delivery of run details and select the option to send
+   details only when the script terminates abnormally.
+8. Select **OK** to save the task.
+9. Select the new task and choose **Run** to test it immediately.
+10. Confirm that a new archive appears in `BACKUP_DIR`, review `LOG_FILE` and
+    `ERROR_FILE`, and verify that Jellyfin is running afterward.
+
+DSM can also retain Task Scheduler output. Open **Task Scheduler > Settings**,
+enable **Save output results**, and select a shared folder. Task output
+supplements the script's own logs.
+
+Avoid overlapping this task with Jellyfin upgrades, NAS shutdowns, snapshots, or
+other jobs that stop Jellyfin or heavily load the backup volumes. Retention is
+applied only after a new archive has been completely created and verified.
+
 
 ## Backup contents
 
@@ -141,6 +183,16 @@ sudo synopkg status jellyfin
 ```
 
 The script independently verifies the real process before and after package operations.
+
+## Stable releases
+
+Stable versions are published through GitHub Releases and identified by
+Semantic Versioning tags such as `v1.0.0`. Download a tagged release instead of
+the default branch when you need a version that will not change.
+
+See [CHANGELOG.md](CHANGELOG.md) for version history and
+[RELEASING.md](RELEASING.md) for the maintainer release process.
+
 
 ## Trademark notice
 
