@@ -30,13 +30,27 @@ used by changing the configuration constants below.
 
 ## Installation
 
-Copy `jellyfin_backup_restore.py` and `.env.example` to your NAS, create your local
-configuration, and make the script executable:
+Install a tagged stable version from the
+[latest GitHub Release](../../releases/latest). Do not use **Code > Download ZIP**
+from the default branch for a production installation; `main` may contain
+changes intended for the next release.
 
-```sh
-cp .env.example .env
-chmod +x jellyfin_backup_restore.py
-```
+1. Open the latest release and review its notes and `CHANGELOG.md` entry.
+2. Under **Assets**, download the release ZIP or `tar.gz` archive.
+3. Extract the archive and copy the project directory to a shared folder on the
+   NAS, such as `/volume1/scripts/jellyfin-backup`.
+4. Create the local configuration and make the script executable:
+
+   ```sh
+   cd /volume1/scripts/jellyfin-backup
+   cp .env.example .env
+   chmod +x jellyfin_backup_restore.py
+   ```
+
+5. Edit `.env` for the NAS before running the first backup.
+
+Clone or download `main` only when testing unreleased changes or contributing
+to development.
 
 ## Configuration
 
@@ -187,12 +201,13 @@ The script independently verifies the real process before and after package oper
 ## Stable releases
 
 Stable versions are published through GitHub Releases and identified by
-Semantic Versioning tags such as `v1.0.0`. Download a tagged release instead of
-the default branch when you need a version that will not change.
+Semantic Versioning tags such as `v1.0.0`. Release tags are fixed snapshots;
+the default branch is ongoing development and may differ from the latest stable
+version.
 
+Users should install from the [latest GitHub Release](../../releases/latest).
 See [CHANGELOG.md](CHANGELOG.md) for version history and
 [RELEASING.md](RELEASING.md) for the maintainer release process.
-
 
 ## Trademark notice
 
