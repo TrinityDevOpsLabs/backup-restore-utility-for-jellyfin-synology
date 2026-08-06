@@ -1,0 +1,33 @@
+# Local configuration
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Logs and runtime output
+logs/
+*.log
+*.log.*
+*.tmp
+
+# Generated backup archives
+jellyfin-data_*.tar.gz
+
+# Virtual environments
+.venv/
+venv/
+
+# Editors and operating systems
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
