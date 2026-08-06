@@ -1,0 +1,8 @@
+# Either owner may approve changes anywhere
+* @Awatatah
+
+# Protect repository governance files
+/.github/ @Awatatah
+/CODEOWNERS @Awatatah
+/LICENSE @Awatatah
+/NOTICE @Awatatah
