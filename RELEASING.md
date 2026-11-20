@@ -20,29 +20,23 @@ This project uses Semantic Versioning and tags releases as `vMAJOR.MINOR.PATCH`.
 
 3. Move the completed entries in `CHANGELOG.md` from `Unreleased` into a
    dated version section.
-4. Commit the release changes on the default branch.
-5. Create an annotated tag. Use a signed tag when Git signing is configured:
+4. Merge the release changes into the default branch.
+5. On GitHub, draft a release. Choose the next version as its tag
+   (for example, `v1.0.2`) and target the default branch. If you use a
+   signed tag, create it on the default branch first and select it in
+   the release draft. A tag alone does not publish a version.
+6. Attach any intended assets before publishing. Mark unstable versions such as
+   `v1.1.0-rc.1` as prereleases.
+7. Publish the GitHub Release. Its tag is the source of truth for the
+   version. The **Release notes** workflow fills in an empty description
+   using GitHub's generated notes and the existing `.github/release.yml`
+   categories. It leaves any notes you already wrote, the release title,
+   and assets unchanged.
 
-   ```sh
-   git tag -s v1.0.0 -m "Release v1.0.0"
-   ```
-
-   Otherwise, create an annotated tag:
-
-   ```sh
-   git tag -a v1.0.0 -m "Release v1.0.0"
-   ```
-
-6. Push the branch and the specific tag:
-
-   ```sh
-   git push origin main
-   git push origin v1.0.0
-   ```
-
-7. On GitHub, draft a release from the tag, generate release notes, review them,
-   attach any intended assets, and publish it.
-8. Mark unstable versions such as `v1.1.0-rc.1` as prereleases.
+If note generation fails, run **Release notes** from the Actions tab with
+the published tag. Releases with existing notes are left alone. To review
+the notes before publishing instead, use GitHub's **Generate release notes**
+button in the draft.
 
 Never move or reuse a published version tag. Enable immutable releases in the
 repository settings after confirming the release workflow.

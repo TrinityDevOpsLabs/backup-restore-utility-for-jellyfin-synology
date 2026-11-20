@@ -201,7 +201,8 @@ The script independently verifies the real process before and after package oper
 ## Stable releases
 
 Stable versions are published through GitHub Releases and identified by
-Semantic Versioning tags such as `v1.0.0`. Release tags are fixed snapshots;
+Semantic Versioning tags such as `v1.0.0`. The published release's tag is the
+source of truth for the version. Release tags are fixed snapshots;
 the default branch is ongoing development and may differ from the latest stable
 version.
 
