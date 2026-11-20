@@ -1,0 +1,67 @@
+name: Release notes
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Tag of an existing published GitHub Release
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-notes-${{ github.event.release.tag_name || inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  release-notes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Generate notes for the published release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          REQUESTED_TAG: ${{ github.event.release.tag_name || inputs.tag }}
+          NOTES_FILE: ${{ runner.temp }}/release-notes.md
+        run: |
+          if [[ ! "$REQUESTED_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::Use a version tag such as v1.0.3 or v1.1.0-rc.1."
+            exit 1
+          fi
+          if ! release=$(gh release view "$REQUESTED_TAG" --json tagName,isDraft,publishedAt,body); then
+            echo "::error::Publish the GitHub Release before generating its notes."
+            exit 1
+          fi
+          if ! release_tag=$(jq -er --arg tag "$REQUESTED_TAG" \
+              'select(.tagName == $tag and .isDraft == false and .publishedAt != null) | .tagName' <<< "$release"); then
+            echo "::error::The requested tag must identify an existing published GitHub Release."
+            exit 1
+          fi
+          if ! tag_commit=$(git rev-parse --verify "refs/tags/${release_tag}^{commit}") ||
+             ! git merge-base --is-ancestor "$tag_commit" HEAD; then
+            echo "::error::The published tag must point to a commit on the default branch."
+            exit 1
+          fi
+          if jq -e '(.body // "") | test("\\S")' <<< "$release" >/dev/null; then
+            echo "Release already has notes; leaving them unchanged."
+            exit 0
+          fi
+          if ! gh api --method POST "repos/$GH_REPO/releases/generate-notes" \
+              -f tag_name="$release_tag" \
+              -f configuration_file_path=.github/release.yml |
+              jq -er '.body | strings' > "$NOTES_FILE" ||
+             ! grep -q '[^[:space:]]' "$NOTES_FILE"; then
+            echo "::error::GitHub did not return usable release notes."
+            exit 1
+          fi
+          gh release edit "$release_tag" --notes-file "$NOTES_FILE"
