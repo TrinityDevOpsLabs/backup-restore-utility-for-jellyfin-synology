@@ -198,6 +198,24 @@ sudo synopkg status jellyfin
 
 The script independently verifies the real process before and after package operations.
 
+## Tests
+
+With Python 3.12 or newer and `rsync` installed, run the same coverage check used
+for pull requests:
+
+```sh
+python -m pip install coverage==7.10.7
+python -m coverage run --include='*/jellyfin_backup_restore.py' -m unittest discover -s tests -v
+python -m coverage report --show-missing --fail-under=80
+```
+
+The tests use temporary data and simulate Synology package controls. The restore
+test uses real SQLite and `rsync`.
+
+To block merges when the check fails, configure the GitHub ruleset or branch
+protection for the target branch to require the **Tests and coverage** status
+check after it first appears on a pull request.
+
 ## Stable releases
 
 Stable versions are published through GitHub Releases and identified by
