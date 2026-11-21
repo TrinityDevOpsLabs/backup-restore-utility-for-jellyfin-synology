@@ -382,13 +382,15 @@ def restore_path(extracted: Path, relative: Path, uid: int, gid: int) -> None:
     destination = APP_DATA_DIR / relative
     if not source.exists():
         raise RuntimeError(f"Required path is missing from archive: {relative}")
+    # Extracted files can share a size and timestamp with live files that differ.
+    options = ("rsync", "-a", "--ignore-times")
     if source.is_dir():
         destination.mkdir(parents=True, exist_ok=True)
         # Make persistent directories exactly match the archive; remove stale files.
-        run("rsync", "-a", "--delete", f"{source}/", f"{destination}/")
+        run(*options, "--delete", f"{source}/", f"{destination}/")
     else:
         destination.parent.mkdir(parents=True, exist_ok=True)
-        run("rsync", "-a", str(source), str(destination))
+        run(*options, str(source), str(destination))
     chown_tree(destination, uid, gid)
 
 
